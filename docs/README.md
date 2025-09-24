@@ -5,197 +5,252 @@
 
 ## Table of Contents  
 
-| # | Section |
-|---|---------|
-| 1 | [About the Project](#about-the-project) |
-| 2 | [Features](#features) |
-| 3 | [Prerequisites](#prerequisites) |
-| 4 | [Installation](#installation) |
-| 5 | [Development Workflow](#development-workflow) |
-| 6 | [Build & Deploy](#build--deploy) |
-| 7 | [Usage (Running Locally)](#usage-running-locally) |
-| 8 | [Project Structure](#project-structure) |
-| 9 | [API Documentation](#api-documentation) |
-|10 | [Customization (SCSS Variables)](#customization-scss-variables) |
-|11 | [Examples](#examples) |
-|12 | [Contributing](#contributing) |
-|13 | [License](#license) |
+1. [Project Overview](#project-overview)  
+2. [Installation](#installation)  
+3. [Usage](#usage)  
+4. [API Documentation](#api-documentation)  
+5. [Examples](#examples)  
+6. [Development Scripts](#development-scripts)  
+7. [Contributing](#contributing)  
+8. [License](#license)  
 
 ---  
 
-## About the Project  
+## Project Overview  
 
-Touropedia is a **responsive, SEO‑friendly travel portal** that showcases destinations, itineraries, travel tips, and user‑generated reviews. The UI is built with **semantic HTML5**, styled with **SCSS** (compiled to CSS), and powered by **vanilla JavaScript** (ES6 modules).  
+Touropedia is a modern, mobile‑first travel portal that showcases destinations, itineraries, and travel tips. The site is built with:
 
-The site works out‑of‑the‑box on desktop, tablet, and mobile devices, and it can be extended with a simple JSON‑based data source or hooked up to any REST API.
+* **HTML5** – semantic markup for accessibility and SEO.  
+* **SCSS** – modular, maintainable styling with variables, mixins, and nesting.  
+* **CSS** – compiled from SCSS, with a responsive grid and custom animations.  
+* **JavaScript (ES6+)** – vanilla JS for UI interactions, data fetching, and client‑side routing.  
 
----  
-
-## Features  
-
-| ✅ | Feature |
-|---|---------|
-| ✅ | Mobile‑first responsive layout (Flexbox + CSS Grid) |
-| ✅ | SCSS architecture with variables, mixins, and BEM naming |
-| ✅ | Lazy‑loaded images & IntersectionObserver for performance |
-| ✅ | Search & filter of destinations (client‑side) |
-| ✅ | Interactive map modal (Leaflet.js – optional) |
-| ✅ | Dark‑mode toggle (CSS custom properties) |
-| ✅ | Build pipeline with **npm**, **sass**, **esbuild**, and **live‑server** |
-| ✅ | Easy to theme – just edit `_variables.scss` |
-| ✅ | Fully documented JavaScript API (`src/js/api.js`) |
-
----  
-
-## Prerequisites  
-
-| Tool | Minimum Version |
-|------|-----------------|
-| **Git** | 2.20+ |
-| **Node.js** | 18.x (LTS) |
-| **npm** | 9.x (comes with Node) |
-| **A modern browser** | Chrome, Firefox, Edge, Safari (latest) |
-
-> **Note** – The project does **not** require a backend to run locally; all data can be stored in JSON files under `data/`. If you want to connect to a remote API, just replace the stub functions in `src/js/api.js`.
+The repository is a **static site** – there is no server‑side code, but the front‑end consumes a public JSON API (e.g., a travel‑destinations endpoint) to populate content dynamically.
 
 ---  
 
 ## Installation  
 
+> **Prerequisites**  
+> - **Node.js** (>= 18.x) – includes npm.  
+> - **Git** – to clone the repository.  
+
+### 1. Clone the repository  
+
 ```bash
-# 1️⃣ Clone the repository
-git clone https://github.com/your‑username/Touropedia.git
+git clone https://github.com/yourusername/Touropedia.git
 cd Touropedia
-
-# 2️⃣ Install Node dependencies (dev tools only)
-npm ci   # or `npm install` if you prefer
-
-# 3️⃣ Install the SCSS compiler (sass is a dev dependency)
-#    No extra step needed – `npm run dev` will handle it.
 ```
 
-> **Tip** – If you only need the compiled assets (e.g., for a quick demo), you can skip the npm step and use the pre‑built `dist/` folder that ships with the repo.
+### 2. Install dependencies  
+
+Touropedia uses a minimal toolchain for SCSS compilation, live‑reloading, and bundling:
+
+| Package | Purpose |
+|---------|---------|
+| `sass` (Dart Sass) | Compile `.scss` → `.css`. |
+| `live-server` | Simple static dev server with hot reload. |
+| `eslint` + `prettier` | Code quality & formatting (optional). |
+| `webpack` (optional) | If you prefer a bundler for JS modules. |
+
+Install the core dev dependencies:
+
+```bash
+npm install
+```
+
+> **Note** – All dependencies are listed in `package.json`. If you only need the compiled CSS, you can skip the npm step and use the pre‑built `dist/css` folder.
+
+### 3. Build the SCSS (first time)  
+
+```bash
+npm run build:css
+```
+
+This command compiles `src/scss/main.scss` into `dist/css/main.css`.
 
 ---  
 
-## Development Workflow  
+## Usage  
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Starts a **live‑server** (http://localhost:3000) + watches SCSS & JS files. Hot‑reloading enabled. |
-| `npm run build` | Compiles SCSS → CSS, bundles JS with **esbuild**, and copies static assets to `dist/`. |
-| `npm run lint` | Runs **stylelint** (SCSS) and **eslint** (JS) in strict mode. |
-| `npm run format` | Auto‑formats code with **Prettier**. |
-| `npm run preview` | Serves the production build from `dist/` (useful for final testing). |
+### Development (Live preview)
 
-All scripts are defined in `package.json`:
+```bash
+npm start
+```
 
-```json
-{
-  "scripts": {
-    "dev": "npm-run-all --parallel watch:scss watch:js serve",
-    "watch:scss": "sass --watch src/scss:dist/css --no-source-map",
-    "watch:js": "esbuild src/js/index.js --bundle --outfile=dist/js/bundle.js --servedir=dist --watch",
-    "serve": "live-server dist --port=3000 --open=./index.html",
-    "build": "npm-run-all clean compile:scss compile:js copy:assets",
-    "compile:scss": "sass src/scss:dist/css --style=compressed",
-    "compile:js": "esbuild src/js/index.js --bundle --minify --outfile=dist/js/bundle.min.js",
-    "copy:assets": "cpy \"src/assets/**/*\" dist/assets",
-    "clean": "rimraf dist",
-    "lint": "npm-run-all lint:scss lint:js",
-    "lint:scss": "stylelint \"src/scss/**/*.scss\"",
-    "lint:js": "eslint \"src/js/**/*.js\"",
-    "format": "prettier --write \"src/**/*.{js,scss,html,md}\""
-  }
+- Starts **live‑server** on `http://127.0.0.1:5500` (or the next available port).  
+- Watches `src/scss/**/*.scss` and `src/js/**/*.js` for changes.  
+- Automatically recompiles SCSS and reloads the browser.
+
+### Production build  
+
+```bash
+npm run build
+```
+
+- Compiles SCSS → minified CSS (`dist/css/main.min.css`).  
+- Copies HTML files from `src/` to `dist/`.  
+- Bundles/minifies JavaScript (if you enable the optional Webpack step).  
+- The final static site lives in the `dist/` folder, ready to be deployed to any static host (GitHub Pages, Netlify, Vercel, etc.).
+
+### Deploy to GitHub Pages (example)
+
+```bash
+npm run deploy
+```
+
+> The `deploy` script pushes the contents of `dist/` to the `gh-pages` branch.  
+> Make sure the repository has a `gh-pages` branch or create one first.
+
+---  
+
+## API Documentation  
+
+Touropedia does **not** expose its own backend API, but it consumes a public JSON endpoint to retrieve travel data. All API interactions are encapsulated in the `src/js/api.js` module.
+
+### `src/js/api.js`
+
+| Export | Description | Signature | Returns |
+|--------|-------------|-----------|---------|
+| `fetchDestinations()` | Retrieves the list of travel destinations. | `fetchDestinations(): Promise<Destination[]>` | `Promise` that resolves to an array of `Destination` objects. |
+| `fetchDestination(id)` | Retrieves detailed data for a single destination. | `fetchDestination(id: string | number): Promise<DestinationDetail>` | `Promise` that resolves to a `DestinationDetail` object. |
+| `searchDestinations(query)` | Performs a client‑side fuzzy search on the cached destination list. | `searchDestinations(query: string): Destination[]` | Synchronous array of matching destinations. |
+| `setApiBaseUrl(url)` | Override the default API base URL (useful for testing). | `setApiBaseUrl(url: string): void` | — |
+
+#### Types (JSDoc)
+
+```js
+/**
+ * @typedef {Object} Destination
+ * @property {number} id          - Unique identifier.
+ * @property {string} name        - Destination name.
+ * @property {string} country     - Country name.
+ * @property {string} thumbnail   - URL to a thumbnail image.
+ * @property {string[]} tags      - Tags such as ["beach","mountain"].
+ */
+
+/**
+ * @typedef {Object} DestinationDetail
+ * @property {number} id
+ * @property {string} name
+ * @property {string} country
+ * @property {string} description   - Full description (HTML allowed).
+ * @property {string[]} images      - Array of image URLs.
+ * @property {Object} stats         - Visitor stats, rating, etc.
+ */
+```
+
+#### Example usage
+
+```js
+import { fetchDestinations, fetchDestination } from './api.js';
+
+async function initHomePage() {
+  const destinations = await fetchDestinations();
+  renderDestinationCards(destinations);
+}
+
+async function showDetail(id) {
+  const detail = await fetchDestination(id);
+  renderDetailPage(detail);
+}
+```
+
+### Error handling  
+
+All API functions reject with an `Error` object that contains a `status` property (HTTP status code) and a `message`. Example:
+
+```js
+try {
+  const data = await fetchDestinations();
+} catch (err) {
+  console.error(`API error (${err.status}): ${err.message}`);
+  showToast('Unable to load destinations. Please try again later.');
 }
 ```
 
 ---  
 
-## Build & Deploy  
+## Examples  
 
-1. **Build** the production assets  
+Below are common usage patterns that you can copy/paste into your own pages or components.
 
-   ```bash
-   npm run build
-   ```
+### 1. Rendering a list of destination cards  
 
-   The output lives in the `dist/` folder:
-
-   ```
-   dist/
-   ├─ css/
-   │   └─ main.min.css
-   ├─ js/
-   │   └─ bundle.min.js
-   ├─ assets/
-   │   └─ (images, fonts, etc.)
-   └─ index.html
-   ```
-
-2. **Deploy**  
-
-   - **Static hosting** (GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc.) – just point the host to the `dist/` directory.  
-   - **Custom server** – serve `dist/` with any static file server (nginx, Apache, Express, etc.).  
-
-   Example **nginx** config snippet:
-
-   ```nginx
-   server {
-       listen 80;
-       server_name touropedia.example.com;
-
-       root /var/www/touropedia/dist;
-       index index.html;
-
-       location / {
-           try_files $uri $uri/ =404;
-       }
-
-       # Optional: enable gzip compression
-       gzip on;
-       gzip_types text/css application/javascript;
-   }
-   ```
-
----  
-
-## Usage (Running Locally)  
-
-```bash
-npm run dev
+```html
+<!-- index.html -->
+<section id="destinations" class="grid grid--3col"></section>
 ```
 
-- Open **http://localhost:3000** in your browser.  
-- Any change to `src/scss/**/*.scss` or `src/js/**/*.js` triggers an automatic rebuild and live‑reload.  
+```js
+// src/js/home.js
+import { fetchDestinations } from './api.js';
 
-### Quick “no‑npm” demo  
+const container = document.getElementById('destinations');
 
-If you just want to see the site without installing anything:
+function createCard(dest) {
+  const card = document.createElement('article');
+  card.className = 'card';
+  card.innerHTML = `
+    <img src="${dest.thumbnail}" alt="${dest.name}" class="card__img" loading="lazy">
+    <h3 class="card__title">${dest.name}</h3>
+    <p class="card__country">${dest.country}</p>
+    <a href="detail.html?id=${dest.id}" class="card__link">Explore →</a>
+  `;
+  return card;
+}
 
-```bash
-# From the repository root
-open dist/index.html   # macOS
-# or double‑click the file on Windows/Linux
+async function render() {
+  try {
+    const list = await fetchDestinations();
+    list.forEach(dest => container.appendChild(createCard(dest)));
+  } catch (e) {
+    container.innerHTML = '<p class="error">Failed to load destinations.</p>';
+  }
+}
+
+render();
 ```
 
----  
+### 2. Detail page with image carousel  
 
-## Project Structure  
-
+```html
+<!-- detail.html -->
+<main id="detail-page" class="detail-page">
+  <h1 id="dest-name"></h1>
+  <p id="dest-country"></p>
+  <div id="carousel" class="carousel"></div>
+  <section id="description"></section>
+</main>
 ```
-Touropedia/
-├─ .github/                # CI / issue templates
-├─ src/
-│   ├─ assets/             # Original images, fonts, icons
-│   ├─ data/               # JSON data files (destinations, reviews, etc.)
-│   ├─ js/
-│   │   ├─ api.js          # Public JS API (fetch, filter, etc.)
-│   │   ├─ ui.js           # UI helpers (modals, toggles)
-│   │   └─ index.js        # Entry point – imports everything
-│   ├─ scss/
-│   │   ├─ base/           # Reset, typography, utilities
-│   │   ├─ components/     # Buttons, cards, nav, etc.
-│   │   ├─ layout/         # Grid, header, footer
-│   │   ├─ themes/         # Light / dark theme variables
-│   │   └─ main.scss      
+
+```js
+// src/js/detail.js
+import { fetchDestination } from './api.js';
+
+function buildCarousel(images) {
+  const carousel = document.getElementById('carousel');
+  carousel.innerHTML = images
+    .map(
+      src => `<div class="carousel__slide"><img src="${src}" loading="lazy"></div>`
+    )
+    .join('');
+  // Simple vanilla carousel – you can replace with Swiper, Flickity, etc.
+  let index = 0;
+  const slides = carousel.children;
+  function showSlide(i) {
+    Array.from(slides).forEach((s, idx) => {
+      s.style.display = idx === i ? 'block' : 'none';
+    });
+  }
+  showSlide(index);
+  setInterval(() => {
+    index = (index + 1) % slides.length;
+    showSlide(index);
+  }, 4000);
+}
+
+async function initDetail() {
+  const params = new URLSearchParams(window.location.search);
+  const id =
