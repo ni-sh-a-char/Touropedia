@@ -7,221 +7,195 @@
 
 | # | Section |
 |---|---------|
-| 1 | [Overview](#overview) |
-| 2 | [Prerequisites](#prerequisites) |
-| 3 | [Installation](#installation) |
-| 4 | [Development workflow](#development-workflow) |
-| 5 | [Usage](#usage) |
+| 1 | [About the Project](#about-the-project) |
+| 2 | [Features](#features) |
+| 3 | [Prerequisites](#prerequisites) |
+| 4 | [Installation](#installation) |
+| 5 | [Development Workflow](#development-workflow) |
 | 6 | [Build & Deploy](#build--deploy) |
-| 7 | [API Documentation](#api-documentation) |
-| 8 | [Examples](#examples) |
-| 9 | [Configuration](#configuration) |
-|10 | [Contributing](#contributing) |
-|11 | [License](#license) |
-|12 | [Acknowledgements](#acknowledgements) |
+| 7 | [Usage (Running Locally)](#usage-running-locally) |
+| 8 | [Project Structure](#project-structure) |
+| 9 | [API Documentation](#api-documentation) |
+|10 | [Customization (SCSS Variables)](#customization-scss-variables) |
+|11 | [Examples](#examples) |
+|12 | [Contributing](#contributing) |
+|13 | [License](#license) |
 
 ---  
 
-## 1. Overview  
+## About the Project  
 
-Touropedia is a **responsive, single‑page travel guide** that showcases destinations, itineraries, and travel tips. The project is deliberately lightweight:  
+Touropedia is a **responsive, SEO‑friendly travel portal** that showcases destinations, itineraries, travel tips, and user‑generated reviews. The UI is built with **semantic HTML5**, styled with **SCSS** (compiled to CSS), and powered by **vanilla JavaScript** (ES6 modules).  
 
-* **HTML5** – semantic markup for accessibility and SEO.  
-* **SCSS** – modular, themable styling compiled to a single CSS bundle.  
-* **Vanilla JavaScript** – no framework overhead; ES6+ modules handle data fetching, UI interactions, and routing.  
-
-The site works on any modern browser and adapts gracefully from mobile phones to large‑desktop monitors.
+The site works out‑of‑the‑box on desktop, tablet, and mobile devices, and it can be extended with a simple JSON‑based data source or hooked up to any REST API.
 
 ---  
 
-## 2. Prerequisites  
+## Features  
 
-| Tool | Minimum version | Why it’s needed |
-|------|----------------|-----------------|
-| **Git** | 2.20+ | Clone the repository |
-| **Node.js** | 18.x LTS | Run npm scripts, compile SCSS, start dev server |
-| **npm** (or **pnpm** / **yarn**) | 9.x+ | Package manager |
-| **A modern browser** | Chrome/Firefox/Edge/Safari  latest | Test the UI |
-| **Optional – Docker** | 20.10+ | Run the site in an isolated container |
-
-> **Tip:** If you only want to view the static site, you can skip Node and just open `dist/index.html` in a browser. All build steps are optional for a quick demo.
+| ✅ | Feature |
+|---|---------|
+| ✅ | Mobile‑first responsive layout (Flexbox + CSS Grid) |
+| ✅ | SCSS architecture with variables, mixins, and BEM naming |
+| ✅ | Lazy‑loaded images & IntersectionObserver for performance |
+| ✅ | Search & filter of destinations (client‑side) |
+| ✅ | Interactive map modal (Leaflet.js – optional) |
+| ✅ | Dark‑mode toggle (CSS custom properties) |
+| ✅ | Build pipeline with **npm**, **sass**, **esbuild**, and **live‑server** |
+| ✅ | Easy to theme – just edit `_variables.scss` |
+| ✅ | Fully documented JavaScript API (`src/js/api.js`) |
 
 ---  
 
-## 3. Installation  
+## Prerequisites  
+
+| Tool | Minimum Version |
+|------|-----------------|
+| **Git** | 2.20+ |
+| **Node.js** | 18.x (LTS) |
+| **npm** | 9.x (comes with Node) |
+| **A modern browser** | Chrome, Firefox, Edge, Safari (latest) |
+
+> **Note** – The project does **not** require a backend to run locally; all data can be stored in JSON files under `data/`. If you want to connect to a remote API, just replace the stub functions in `src/js/api.js`.
+
+---  
+
+## Installation  
 
 ```bash
-# 1️⃣ Clone the repo
+# 1️⃣ Clone the repository
 git clone https://github.com/your‑username/Touropedia.git
 cd Touropedia
 
-# 2️⃣ Install dependencies
-npm ci   # or `pnpm i` / `yarn install`
+# 2️⃣ Install Node dependencies (dev tools only)
+npm ci   # or `npm install` if you prefer
 
-# 3️⃣ (Optional) Install the optional pre‑commit hook
-npm run prepare   # sets up husky lint‑staged hooks
+# 3️⃣ Install the SCSS compiler (sass is a dev dependency)
+#    No extra step needed – `npm run dev` will handle it.
 ```
 
-> **What’s installed?**  
-* `sass` – compiles SCSS → CSS.  
-* `esbuild` – bundles JavaScript modules.  
-* `live-server` – lightweight dev server with hot‑reload.  
-* `eslint` + `stylelint` – code quality enforcement.  
+> **Tip** – If you only need the compiled assets (e.g., for a quick demo), you can skip the npm step and use the pre‑built `dist/` folder that ships with the repo.
 
 ---  
 
-## 4. Development workflow  
+## Development Workflow  
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Starts a live‑reloading dev server (`http://localhost:3000`). SCSS and JS are compiled on‑the‑fly. |
-| `npm run build` | Produces a production‑ready `dist/` folder (minified CSS/JS, hashed filenames). |
-| `npm run lint` | Runs ESLint + Stylelint. |
-| `npm test` | Runs the (currently minimal) Jest test suite. |
-| `npm run format` | Formats code with Prettier. |
+| `npm run dev` | Starts a **live‑server** (http://localhost:3000) + watches SCSS & JS files. Hot‑reloading enabled. |
+| `npm run build` | Compiles SCSS → CSS, bundles JS with **esbuild**, and copies static assets to `dist/`. |
+| `npm run lint` | Runs **stylelint** (SCSS) and **eslint** (JS) in strict mode. |
+| `npm run format` | Auto‑formats code with **Prettier**. |
+| `npm run preview` | Serves the production build from `dist/` (useful for final testing). |
 
-**Typical cycle**
+All scripts are defined in `package.json`:
 
-```bash
-npm run dev          # start dev server
-# edit src/**/*.scss or src/**/*.js
-# browser reloads automatically
-# when ready for a release:
-npm run build
+```json
+{
+  "scripts": {
+    "dev": "npm-run-all --parallel watch:scss watch:js serve",
+    "watch:scss": "sass --watch src/scss:dist/css --no-source-map",
+    "watch:js": "esbuild src/js/index.js --bundle --outfile=dist/js/bundle.js --servedir=dist --watch",
+    "serve": "live-server dist --port=3000 --open=./index.html",
+    "build": "npm-run-all clean compile:scss compile:js copy:assets",
+    "compile:scss": "sass src/scss:dist/css --style=compressed",
+    "compile:js": "esbuild src/js/index.js --bundle --minify --outfile=dist/js/bundle.min.js",
+    "copy:assets": "cpy \"src/assets/**/*\" dist/assets",
+    "clean": "rimraf dist",
+    "lint": "npm-run-all lint:scss lint:js",
+    "lint:scss": "stylelint \"src/scss/**/*.scss\"",
+    "lint:js": "eslint \"src/js/**/*.js\"",
+    "format": "prettier --write \"src/**/*.{js,scss,html,md}\""
+  }
+}
 ```
 
 ---  
 
-## 5. Usage  
+## Build & Deploy  
 
-### 5.1 Running locally (development)
+1. **Build** the production assets  
+
+   ```bash
+   npm run build
+   ```
+
+   The output lives in the `dist/` folder:
+
+   ```
+   dist/
+   ├─ css/
+   │   └─ main.min.css
+   ├─ js/
+   │   └─ bundle.min.js
+   ├─ assets/
+   │   └─ (images, fonts, etc.)
+   └─ index.html
+   ```
+
+2. **Deploy**  
+
+   - **Static hosting** (GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc.) – just point the host to the `dist/` directory.  
+   - **Custom server** – serve `dist/` with any static file server (nginx, Apache, Express, etc.).  
+
+   Example **nginx** config snippet:
+
+   ```nginx
+   server {
+       listen 80;
+       server_name touropedia.example.com;
+
+       root /var/www/touropedia/dist;
+       index index.html;
+
+       location / {
+           try_files $uri $uri/ =404;
+       }
+
+       # Optional: enable gzip compression
+       gzip on;
+       gzip_types text/css application/javascript;
+   }
+   ```
+
+---  
+
+## Usage (Running Locally)  
 
 ```bash
 npm run dev
 ```
 
-*Open* `http://localhost:3000` in your browser.  
-The site will automatically reload when you edit any file under `src/`.
+- Open **http://localhost:3000** in your browser.  
+- Any change to `src/scss/**/*.scss` or `src/js/**/*.js` triggers an automatic rebuild and live‑reload.  
 
-### 5.2 Viewing the production build
+### Quick “no‑npm” demo  
 
-```bash
-npm run build
-npx serve dist   # or any static file server
-```
-
-Open the URL printed by `serve` (usually `http://localhost:5000`).  
-
-### 5.3 Customising the theme  
-
-All colours, fonts, and breakpoints live in `src/scss/_variables.scss`.  
-Edit the variables and re‑run `npm run dev` (or `npm run build` for production).
-
-```scss
-// Example: change primary colour
-$color-primary: #0066ff;   // default blue
-```
-
-### 5.4 Adding a new destination page  
-
-1. **Create a markdown file** in `src/content/destinations/` (e.g., `paris.md`).  
-2. Use the front‑matter format:
-
-   ```markdown
-   ---
-   title: "Paris, France"
-   slug: "paris"
-   cover: "/assets/images/paris/cover.jpg"
-   tags: ["city", "culture", "food"]
-   ---
-   # Welcome to Paris
-   ...content...
-   ```
-
-3. Run `npm run dev`. The JavaScript router automatically picks up the new slug and renders the page using the built‑in markdown parser.
-
----  
-
-## 6. Build & Deploy  
-
-### 6.1 Production build  
+If you just want to see the site without installing anything:
 
 ```bash
-npm run build
-```
-
-The command creates a **self‑contained** `dist/` folder:
-
-```
-dist/
-├─ index.html
-├─ assets/
-│  ├─ css/
-│  │  └─ main.[hash].css
-│  ├─ js/
-│  │  └─ bundle.[hash].js
-│  └─ images/
-└─ manifest.json
-```
-
-### 6.2 Deploying to static hosts  
-
-Touropedia is a **static site** – you can host it on any static‑file CDN (Netlify, Vercel, GitHub Pages, Cloudflare Pages, etc.).  
-
-**Example: Deploy to GitHub Pages**
-
-```bash
-# 1️⃣ Build
-npm run build
-
-# 2️⃣ Push the `dist` folder to the `gh-pages` branch
-git checkout --orphan gh-pages
-git --work-tree dist add --all
-git --work-tree dist commit -m "Deploy Touropedia"
-git push origin gh-pages --force
-git checkout main
-```
-
-> **Tip:** Add a GitHub Action (`.github/workflows/deploy.yml`) that runs `npm ci && npm run build && gh-pages -d dist` for automatic CI/CD.
-
-### 6.3 Docker (optional)
-
-```dockerfile
-# Dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY . .
-RUN npm ci && npm run build
-
-FROM nginx:stable-alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-```bash
-docker build -t touropedia .
-docker run -p 8080:80 touropedia
-# Open http://localhost:8080
+# From the repository root
+open dist/index.html   # macOS
+# or double‑click the file on Windows/Linux
 ```
 
 ---  
 
-## 7. API Documentation  
-
-Touropedia ships with a **tiny client‑side API** that abstracts data fetching from the public travel‑info endpoint `https://api.touropedia.dev`. All calls return **JSON** and are typed with JSDoc.
-
-### 7.1 Base URL  
+## Project Structure  
 
 ```
-https://api.touropedia.dev/v1
-```
-
-### 7.2 Endpoints  
-
-| Method | Path | Description | Query parameters | Example response |
-|--------|------|-------------|------------------|------------------|
-| `GET` | `/destinations` | List all destinations (paginated). | `page` (int, default 1) `limit` (int, default 20) | `{ "data": [{ "id": "paris", "name": "Paris", "country": "France", "cover": "..."}], "meta": { "page":1, "totalPages":5 } }` |
-| `GET` | `/destinations/:slug` | Get detailed info for a single destination. | – | `{ "id":"paris","name":"Paris","description":"…","highlights":[…],"gallery":[…] }` |
-| `GET` | `/search` | Full‑text search across destinations, articles, and tips. | `q` (string, required) `type` (`dest|article|tip`) | `{ "results": [{ "type":"dest","slug":"paris","title":"Paris"}] }` |
-| `GET` | `/weather/:city` | Current
+Touropedia/
+├─ .github/                # CI / issue templates
+├─ src/
+│   ├─ assets/             # Original images, fonts, icons
+│   ├─ data/               # JSON data files (destinations, reviews, etc.)
+│   ├─ js/
+│   │   ├─ api.js          # Public JS API (fetch, filter, etc.)
+│   │   ├─ ui.js           # UI helpers (modals, toggles)
+│   │   └─ index.js        # Entry point – imports everything
+│   ├─ scss/
+│   │   ├─ base/           # Reset, typography, utilities
+│   │   ├─ components/     # Buttons, cards, nav, etc.
+│   │   ├─ layout/         # Grid, header, footer
+│   │   ├─ themes/         # Light / dark theme variables
+│   │   └─ main.scss      
