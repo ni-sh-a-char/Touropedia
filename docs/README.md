@@ -3,254 +3,219 @@
 
 ---  
 
-## Table of Contents  
-
+## Table of Contents
 1. [Project Overview](#project-overview)  
-2. [Installation](#installation)  
-3. [Usage](#usage)  
-4. [API Documentation](#api-documentation)  
-5. [Examples](#examples)  
-6. [Development Scripts](#development-scripts)  
-7. [Contributing](#contributing)  
-8. [License](#license)  
+2. [Prerequisites](#prerequisites)  
+3. [Installation](#installation)  
+4. [Development & Build Workflow](#development--build-workflow)  
+5. [Usage](#usage)  
+6. [API Documentation](#api-documentation)  
+7. [Examples](#examples)  
+8. [Contributing](#contributing)  
+9. [License](#license)  
 
 ---  
 
-## Project Overview  
+## Project Overview
+Touropedia is a **responsive, client‑side travel portal** that showcases destinations, itineraries, and travel tips. The site is built with:
 
-Touropedia is a modern, mobile‑first travel portal that showcases destinations, itineraries, and travel tips. The site is built with:
+| Technology | Purpose |
+|------------|---------|
+| **HTML5**  | Semantic markup and page structure |
+| **SCSS**   | Modular, maintainable styling with variables, mixins, and nesting |
+| **CSS**    | Compiled output for the browser |
+| **JavaScript (ES6+)** | Interactive UI components, data fetching, and client‑side routing |
 
-* **HTML5** – semantic markup for accessibility and SEO.  
-* **SCSS** – modular, maintainable styling with variables, mixins, and nesting.  
-* **CSS** – compiled from SCSS, with a responsive grid and custom animations.  
-* **JavaScript (ES6+)** – vanilla JS for UI interactions, data fetching, and client‑side routing.  
+The repository ships with a lightweight development server, SCSS compilation, and a simple JSON‑based mock API that can be swapped for a real backend.
 
-The repository is a **static site** – there is no server‑side code, but the front‑end consumes a public JSON API (e.g., a travel‑destinations endpoint) to populate content dynamically.
+---  
+
+## Prerequisites
+| Tool | Minimum Version | Why |
+|------|----------------|-----|
+| **Node.js** | `>= 18.x` | Provides `npm`/`pnpm` and runs the build scripts |
+| **Git** | any | To clone the repository |
+| **A modern browser** | Chrome/Firefox/Edge (latest) | For testing the responsive UI |
+| **Optional** – **Docker** | `>= 20.x` | Run the dev environment in a container (see Docker section) |
 
 ---  
 
 ## Installation  
 
-> **Prerequisites**  
-> - **Node.js** (>= 18.x) – includes npm.  
-> - **Git** – to clone the repository.  
-
-### 1. Clone the repository  
-
+### 1. Clone the repository
 ```bash
 git clone https://github.com/yourusername/Touropedia.git
 cd Touropedia
 ```
 
-### 2. Install dependencies  
-
-Touropedia uses a minimal toolchain for SCSS compilation, live‑reloading, and bundling:
-
-| Package | Purpose |
-|---------|---------|
-| `sass` (Dart Sass) | Compile `.scss` → `.css`. |
-| `live-server` | Simple static dev server with hot reload. |
-| `eslint` + `prettier` | Code quality & formatting (optional). |
-| `webpack` (optional) | If you prefer a bundler for JS modules. |
-
-Install the core dev dependencies:
+### 2. Install dependencies
+Touropedia uses **npm** (you can also use `pnpm` or `yarn` if you prefer).
 
 ```bash
-npm install
+npm ci
 ```
 
-> **Note** – All dependencies are listed in `package.json`. If you only need the compiled CSS, you can skip the npm step and use the pre‑built `dist/css` folder.
+> **Why `npm ci`?**  
+> It installs exactly the versions listed in `package-lock.json`, guaranteeing reproducible builds.
 
-### 3. Build the SCSS (first time)  
+### 3. Set up environment variables (optional)
+If you want to point the front‑end to a real API instead of the bundled mock data, create a `.env` file at the project root:
 
+```dotenv
+# .env
+API_BASE_URL=https://api.yourtravelservice.com/v1
+```
+
+The build scripts automatically inject `process.env.API_BASE_URL` into the client code via Vite’s built‑in env handling.
+
+### 4. (Optional) Docker setup
 ```bash
-npm run build:css
+docker compose up --build
 ```
+The compose file starts a container with Node, installs dependencies, and runs the dev server on `http://localhost:5173`.
 
-This command compiles `src/scss/main.scss` into `dist/css/main.css`.
+---  
+
+## Development & Build Workflow  
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Starts a hot‑reloading development server (Vite). |
+| `npm run build` | Produces an optimized production build in `dist/`. |
+| `npm run preview` | Serves the production build locally for QA. |
+| `npm run lint` | Runs ESLint + Stylelint on the codebase. |
+| `npm run format` | Formats files with Prettier. |
+| `npm run clean` | Removes `node_modules` and `dist/` for a fresh start. |
+
+> **Tip:** The SCSS files live under `src/scss/`. Any change triggers an automatic recompilation to `src/css/` (handled by Vite’s plugin).  
 
 ---  
 
 ## Usage  
 
-### Development (Live preview)
+### Running locally (development)
 
 ```bash
-npm start
+npm run dev
 ```
 
-- Starts **live‑server** on `http://127.0.0.1:5500` (or the next available port).  
-- Watches `src/scss/**/*.scss` and `src/js/**/*.js` for changes.  
-- Automatically recompiles SCSS and reloads the browser.
+Open your browser at `http://localhost:5173`. The site will automatically reload when you edit HTML, SCSS, or JS files.
 
-### Production build  
+### Deploying to production  
+
+1. Build the static assets:
+
+   ```bash
+   npm run build
+   ```
+
+2. Upload the contents of the `dist/` folder to any static‑file host (GitHub Pages, Netlify, Vercel, AWS S3 + CloudFront, etc.).  
+
+   Example for **Netlify**:
+
+   ```bash
+   netlify deploy --dir=dist --prod
+   ```
+
+3. If you are using a custom domain, configure DNS to point to your host and enable HTTPS.
+
+### Configuration flags  
+
+| Flag | Effect |
+|------|--------|
+| `VITE_API_BASE_URL` | Overrides the API endpoint at runtime (see `.env`). |
+| `VITE_THEME=dark` | Forces the dark theme on first load (overrides user‑prefers‑color‑scheme). |
+| `VITE_ANALYTICS_ID` | Enables Google Analytics (or any analytics) integration. |
+
+You can pass these via the command line:
 
 ```bash
-npm run build
+VITE_THEME=dark npm run dev
 ```
-
-- Compiles SCSS → minified CSS (`dist/css/main.min.css`).  
-- Copies HTML files from `src/` to `dist/`.  
-- Bundles/minifies JavaScript (if you enable the optional Webpack step).  
-- The final static site lives in the `dist/` folder, ready to be deployed to any static host (GitHub Pages, Netlify, Vercel, etc.).
-
-### Deploy to GitHub Pages (example)
-
-```bash
-npm run deploy
-```
-
-> The `deploy` script pushes the contents of `dist/` to the `gh-pages` branch.  
-> Make sure the repository has a `gh-pages` branch or create one first.
 
 ---  
 
 ## API Documentation  
 
-Touropedia does **not** expose its own backend API, but it consumes a public JSON endpoint to retrieve travel data. All API interactions are encapsulated in the `src/js/api.js` module.
+Touropedia’s front‑end talks to a **REST‑like JSON API**. The default mock API lives in `public/mock-data/`. You can replace it with a real backend that respects the same contract.
 
-### `src/js/api.js`
+### Base URL
+```
+{API_BASE_URL}/
+```
+If `API_BASE_URL` is not defined, the site falls back to `/api/` (served from the static `public/` folder).
 
-| Export | Description | Signature | Returns |
-|--------|-------------|-----------|---------|
-| `fetchDestinations()` | Retrieves the list of travel destinations. | `fetchDestinations(): Promise<Destination[]>` | `Promise` that resolves to an array of `Destination` objects. |
-| `fetchDestination(id)` | Retrieves detailed data for a single destination. | `fetchDestination(id: string | number): Promise<DestinationDetail>` | `Promise` that resolves to a `DestinationDetail` object. |
-| `searchDestinations(query)` | Performs a client‑side fuzzy search on the cached destination list. | `searchDestinations(query: string): Destination[]` | Synchronous array of matching destinations. |
-| `setApiBaseUrl(url)` | Override the default API base URL (useful for testing). | `setApiBaseUrl(url: string): void` | — |
+### Endpoints  
 
-#### Types (JSDoc)
+| Method | Endpoint | Description | Query Parameters | Example Response |
+|--------|----------|-------------|------------------|------------------|
+| `GET` | `/destinations` | Returns a list of travel destinations. | `?page=1&limit=20` | ```json [{ "id": 1, "name": "Paris", "slug": "paris", "coverImage": "/images/paris.jpg", "rating": 4.8 }]``` |
+| `GET` | `/destinations/:slug` | Details for a single destination. | — | ```json { "id": 1, "name": "Paris", "description": "...", "gallery": [...], "highlights": [...] }``` |
+| `GET` | `/itineraries?dest=:slug` | Suggested itineraries for a destination. | `dest` (slug) | ```json [{ "title": "3‑Day Paris Highlights", "days": 3, "price": 1200 }]``` |
+| `GET` | `/search` | Full‑text search across destinations & articles. | `q` (string) | ```json [{ "type": "destination", "id": 5, "title": "Tokyo" }]``` |
+| `POST` | `/contact` | Submit a contact form. | Body: `{ name, email, message }` | ```json { "status": "ok", "messageId": "abc123" }``` |
+
+> **Note:** All responses are JSON and include a top‑level `status` field (`"success"` or `"error"`). Errors contain an `error` object with `code` and `message`.
+
+### JavaScript Helper Module (`src/js/api.js`)
 
 ```js
 /**
- * @typedef {Object} Destination
- * @property {number} id          - Unique identifier.
- * @property {string} name        - Destination name.
- * @property {string} country     - Country name.
- * @property {string} thumbnail   - URL to a thumbnail image.
- * @property {string[]} tags      - Tags such as ["beach","mountain"].
+ * @module api
+ * @description Small wrapper around fetch() that handles base URL,
+ *              JSON parsing, and error handling.
  */
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
- * @typedef {Object} DestinationDetail
- * @property {number} id
- * @property {string} name
- * @property {string} country
- * @property {string} description   - Full description (HTML allowed).
- * @property {string[]} images      - Array of image URLs.
- * @property {Object} stats         - Visitor stats, rating, etc.
+ * Generic GET request.
+ * @param {string} path - API path (e.g., '/destinations')
+ * @param {Object} [params] - Query parameters
+ * @returns {Promise<any>}
  */
+export async function get(path, params = {}) {
+  const url = new URL(BASE_URL + path, location.origin);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
+
+  const response = await fetch(url, { credentials: 'same-origin' });
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error?.message || 'API request failed');
+  }
+  return data;
+}
+
+/**
+ * Generic POST request.
+ * @param {string} path
+ * @param {Object} body
+ * @returns {Promise<any>}
+ */
+export async function post(path, body) {
+  const response = await fetch(BASE_URL + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    credentials: 'same-origin',
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error?.message || 'API request failed');
+  }
+  return data;
+}
 ```
 
-#### Example usage
+#### Example usage in a component
 
 ```js
-import { fetchDestinations, fetchDestination } from './api.js';
+import { get, post } from './api.js';
 
-async function initHomePage() {
-  const destinations = await fetchDestinations();
-  renderDestinationCards(destinations);
-}
-
-async function showDetail(id) {
-  const detail = await fetchDestination(id);
-  renderDetailPage(detail);
-}
-```
-
-### Error handling  
-
-All API functions reject with an `Error` object that contains a `status` property (HTTP status code) and a `message`. Example:
-
-```js
-try {
-  const data = await fetchDestinations();
-} catch (err) {
-  console.error(`API error (${err.status}): ${err.message}`);
-  showToast('Unable to load destinations. Please try again later.');
-}
-```
-
----  
-
-## Examples  
-
-Below are common usage patterns that you can copy/paste into your own pages or components.
-
-### 1. Rendering a list of destination cards  
-
-```html
-<!-- index.html -->
-<section id="destinations" class="grid grid--3col"></section>
-```
-
-```js
-// src/js/home.js
-import { fetchDestinations } from './api.js';
-
-const container = document.getElementById('destinations');
-
-function createCard(dest) {
-  const card = document.createElement('article');
-  card.className = 'card';
-  card.innerHTML = `
-    <img src="${dest.thumbnail}" alt="${dest.name}" class="card__img" loading="lazy">
-    <h3 class="card__title">${dest.name}</h3>
-    <p class="card__country">${dest.country}</p>
-    <a href="detail.html?id=${dest.id}" class="card__link">Explore →</a>
-  `;
-  return card;
-}
-
-async function render() {
+// Load destinations for the homepage carousel
+async function loadDestinations() {
   try {
-    const list = await fetchDestinations();
-    list.forEach(dest => container.appendChild(createCard(dest)));
-  } catch (e) {
-    container.innerHTML = '<p class="error">Failed to load destinations.</p>';
-  }
-}
-
-render();
-```
-
-### 2. Detail page with image carousel  
-
-```html
-<!-- detail.html -->
-<main id="detail-page" class="detail-page">
-  <h1 id="dest-name"></h1>
-  <p id="dest-country"></p>
-  <div id="carousel" class="carousel"></div>
-  <section id="description"></section>
-</main>
-```
-
-```js
-// src/js/detail.js
-import { fetchDestination } from './api.js';
-
-function buildCarousel(images) {
-  const carousel = document.getElementById('carousel');
-  carousel.innerHTML = images
-    .map(
-      src => `<div class="carousel__slide"><img src="${src}" loading="lazy"></div>`
-    )
-    .join('');
-  // Simple vanilla carousel – you can replace with Swiper, Flickity, etc.
-  let index = 0;
-  const slides = carousel.children;
-  function showSlide(i) {
-    Array.from(slides).forEach((s, idx) => {
-      s.style.display = idx === i ? 'block' : 'none';
-    });
-  }
-  showSlide(index);
-  setInterval(() => {
-    index = (index + 1) % slides.length;
-    showSlide(index);
-  }, 4000);
-}
-
-async function initDetail() {
-  const params = new URLSearchParams(window.location.search);
-  const id =
+    const { status, data } = await get('/destinations', { limit: 8 });
+    if (status === 'success') render
