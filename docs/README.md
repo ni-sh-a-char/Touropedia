@@ -3,219 +3,257 @@
 
 ---  
 
-## Table of Contents
-1. [Project Overview](#project-overview)  
-2. [Prerequisites](#prerequisites)  
-3. [Installation](#installation)  
-4. [Development & Build Workflow](#development--build-workflow)  
-5. [Usage](#usage)  
-6. [API Documentation](#api-documentation)  
-7. [Examples](#examples)  
-8. [Contributing](#contributing)  
-9. [License](#license)  
+## Table of Contents  
+
+| # | Section |
+|---|---------|
+| 1 | [Overview](#overview) |
+| 2 | [Installation](#installation) |
+| 3 | [Usage](#usage) |
+| 4 | [Project Structure](#project-structure) |
+| 5 | [API Documentation](#api-documentation) |
+| 6 | [Examples](#examples) |
+| 7 | [Testing & Linting](#testing--linting) |
+| 8 | [Contributing](#contributing) |
+| 9 | [License](#license) |
 
 ---  
 
-## Project Overview
-Touropedia is a **responsive, client‑side travel portal** that showcases destinations, itineraries, and travel tips. The site is built with:
+## Overview  
 
-| Technology | Purpose |
-|------------|---------|
-| **HTML5**  | Semantic markup and page structure |
-| **SCSS**   | Modular, maintainable styling with variables, mixins, and nesting |
-| **CSS**    | Compiled output for the browser |
-| **JavaScript (ES6+)** | Interactive UI components, data fetching, and client‑side routing |
+Touropedia is a **responsive, single‑page travel guide** that showcases destinations, itineraries, and travel tips. The site is built with:
 
-The repository ships with a lightweight development server, SCSS compilation, and a simple JSON‑based mock API that can be swapped for a real backend.
+* **HTML5** – semantic markup for accessibility.  
+* **SCSS** – modular, component‑based styling with variables, mixins, and a responsive grid.  
+* **CSS** – compiled from SCSS, with a small reset and utility classes.  
+* **JavaScript (ES6+)** – vanilla JS modules for data fetching, UI interactions, and client‑side routing.  
 
----  
-
-## Prerequisites
-| Tool | Minimum Version | Why |
-|------|----------------|-----|
-| **Node.js** | `>= 18.x` | Provides `npm`/`pnpm` and runs the build scripts |
-| **Git** | any | To clone the repository |
-| **A modern browser** | Chrome/Firefox/Edge (latest) | For testing the responsive UI |
-| **Optional** – **Docker** | `>= 20.x` | Run the dev environment in a container (see Docker section) |
+The repository is set up for **zero‑config development** using npm scripts, a live‑reload dev server, and a production build pipeline that minifies assets.
 
 ---  
 
 ## Installation  
 
-### 1. Clone the repository
+> **Prerequisites**  
+> * Node.js **≥ 18.x** (LTS)  
+> * npm **≥ 9.x** (comes with Node)  
+
 ```bash
+# 1️⃣ Clone the repo
 git clone https://github.com/yourusername/Touropedia.git
 cd Touropedia
+
+# 2️⃣ Install dependencies
+npm ci          # installs exact versions from package-lock.json
+# or
+npm install     # if you want to update the lockfile
+
+# 3️⃣ (Optional) Install the live‑server globally for quick testing
+npm i -g live-server
 ```
 
-### 2. Install dependencies
-Touropedia uses **npm** (you can also use `pnpm` or `yarn` if you prefer).
+### Development dependencies  
 
-```bash
-npm ci
-```
-
-> **Why `npm ci`?**  
-> It installs exactly the versions listed in `package-lock.json`, guaranteeing reproducible builds.
-
-### 3. Set up environment variables (optional)
-If you want to point the front‑end to a real API instead of the bundled mock data, create a `.env` file at the project root:
-
-```dotenv
-# .env
-API_BASE_URL=https://api.yourtravelservice.com/v1
-```
-
-The build scripts automatically inject `process.env.API_BASE_URL` into the client code via Vite’s built‑in env handling.
-
-### 4. (Optional) Docker setup
-```bash
-docker compose up --build
-```
-The compose file starts a container with Node, installs dependencies, and runs the dev server on `http://localhost:5173`.
-
----  
-
-## Development & Build Workflow  
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Starts a hot‑reloading development server (Vite). |
-| `npm run build` | Produces an optimized production build in `dist/`. |
-| `npm run preview` | Serves the production build locally for QA. |
-| `npm run lint` | Runs ESLint + Stylelint on the codebase. |
-| `npm run format` | Formats files with Prettier. |
-| `npm run clean` | Removes `node_modules` and `dist/` for a fresh start. |
-
-> **Tip:** The SCSS files live under `src/scss/`. Any change triggers an automatic recompilation to `src/css/` (handled by Vite’s plugin).  
+| Package | Purpose |
+|---------|---------|
+| `sass` | Compiles SCSS → CSS |
+| `postcss-cli` + `autoprefixer` | Adds vendor prefixes |
+| `esbuild` | Fast bundling & minification of JS |
+| `eslint` + `prettier` | Code quality & formatting |
+| `browser-sync` | Live‑reload dev server |
+| `jest` | Unit testing for JS utilities |
+| `cypress` | End‑to‑end testing (optional) |
 
 ---  
 
 ## Usage  
 
-### Running locally (development)
+### Development (watch & hot‑reload)
 
 ```bash
 npm run dev
 ```
 
-Open your browser at `http://localhost:5173`. The site will automatically reload when you edit HTML, SCSS, or JS files.
+* Compiles `src/scss/**/*.scss` → `dist/css/style.css` (with source maps).  
+* Bundles `src/js/**/*.js` → `dist/js/bundle.js`.  
+* Starts **BrowserSync** on `http://localhost:3000` with live‑reload on file changes.  
 
-### Deploying to production  
-
-1. Build the static assets:
-
-   ```bash
-   npm run build
-   ```
-
-2. Upload the contents of the `dist/` folder to any static‑file host (GitHub Pages, Netlify, Vercel, AWS S3 + CloudFront, etc.).  
-
-   Example for **Netlify**:
-
-   ```bash
-   netlify deploy --dir=dist --prod
-   ```
-
-3. If you are using a custom domain, configure DNS to point to your host and enable HTTPS.
-
-### Configuration flags  
-
-| Flag | Effect |
-|------|--------|
-| `VITE_API_BASE_URL` | Overrides the API endpoint at runtime (see `.env`). |
-| `VITE_THEME=dark` | Forces the dark theme on first load (overrides user‑prefers‑color‑scheme). |
-| `VITE_ANALYTICS_ID` | Enables Google Analytics (or any analytics) integration. |
-
-You can pass these via the command line:
+### Production Build  
 
 ```bash
-VITE_THEME=dark npm run dev
+npm run build
+```
+
+* SCSS → minified CSS (`dist/css/style.min.css`).  
+* JS → minified bundle (`dist/js/bundle.min.js`).  
+* Copies static assets (`images/`, `fonts/`, `favicon.ico`) to `dist/`.  
+* Generates a **hash‑based cache‑busting** filename for CSS/JS (e.g., `style.3f2a1c.css`).  
+
+### Serve the built site  
+
+```bash
+npm run serve
+# → http://localhost:5000
+```
+
+> **Tip:** Deploy the contents of the `dist/` folder to any static‑host (GitHub Pages, Netlify, Vercel, Firebase Hosting, etc.).  
+
+---  
+
+## Project Structure  
+
+```
+Touropedia/
+├─ .github/                # CI workflows, issue templates
+├─ src/
+│   ├─ index.html          # Entry point (HTML5)
+│   ├─ scss/
+│   │   ├─ base/           # Reset, typography, variables
+│   │   ├─ components/     # Buttons, cards, nav, modal, etc.
+│   │   ├─ layout/         # Grid, header, footer, utilities
+│   │   └─ main.scss       # Imports all partials → compiled CSS
+│   ├─ js/
+│   │   ├─ api.js          # Wrapper around the public travel API
+│   │   ├─ router.js       # Simple client‑side router (hash‑based)
+│   │   ├─ ui/
+│   │   │   ├─ modal.js
+│   │   │   └─ carousel.js
+│   │   └─ app.js          # App bootstrap
+│   └─ assets/
+│       ├─ images/
+│       └─ fonts/
+├─ dist/                   # Generated files (git‑ignored)
+├─ tests/
+│   ├─ unit/
+│   └─ e2e/
+├─ .eslintrc.json
+├─ .prettierrc
+├─ package.json
+└─ README.md               # (this file)
 ```
 
 ---  
 
 ## API Documentation  
 
-Touropedia’s front‑end talks to a **REST‑like JSON API**. The default mock API lives in `public/mock-data/`. You can replace it with a real backend that respects the same contract.
+Touropedia consumes a **public travel‑information API** (the demo uses the free `https://api.touropedia.dev`). All network calls are encapsulated in `src/js/api.js`. Below is the public surface of the module.
 
-### Base URL
-```
-{API_BASE_URL}/
-```
-If `API_BASE_URL` is not defined, the site falls back to `/api/` (served from the static `public/` folder).
-
-### Endpoints  
-
-| Method | Endpoint | Description | Query Parameters | Example Response |
-|--------|----------|-------------|------------------|------------------|
-| `GET` | `/destinations` | Returns a list of travel destinations. | `?page=1&limit=20` | ```json [{ "id": 1, "name": "Paris", "slug": "paris", "coverImage": "/images/paris.jpg", "rating": 4.8 }]``` |
-| `GET` | `/destinations/:slug` | Details for a single destination. | — | ```json { "id": 1, "name": "Paris", "description": "...", "gallery": [...], "highlights": [...] }``` |
-| `GET` | `/itineraries?dest=:slug` | Suggested itineraries for a destination. | `dest` (slug) | ```json [{ "title": "3‑Day Paris Highlights", "days": 3, "price": 1200 }]``` |
-| `GET` | `/search` | Full‑text search across destinations & articles. | `q` (string) | ```json [{ "type": "destination", "id": 5, "title": "Tokyo" }]``` |
-| `POST` | `/contact` | Submit a contact form. | Body: `{ name, email, message }` | ```json { "status": "ok", "messageId": "abc123" }``` |
-
-> **Note:** All responses are JSON and include a top‑level `status` field (`"success"` or `"error"`). Errors contain an `error` object with `code` and `message`.
-
-### JavaScript Helper Module (`src/js/api.js`)
+### `api.js` (ES6 module)
 
 ```js
 /**
  * @module api
- * @description Small wrapper around fetch() that handles base URL,
- *              JSON parsing, and error handling.
+ * @description Helper functions to fetch travel data.
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const BASE_URL = 'https://api.touropedia.dev/v1';
 
 /**
  * Generic GET request.
- * @param {string} path - API path (e.g., '/destinations')
- * @param {Object} [params] - Query parameters
- * @returns {Promise<any>}
+ *
+ * @param {string} endpoint - API endpoint (e.g., '/destinations')
+ * @param {Object} [params={}] - Query parameters as key/value pairs
+ * @returns {Promise<any>} Resolves with JSON payload or rejects with an Error.
  */
-export async function get(path, params = {}) {
-  const url = new URL(BASE_URL + path, location.origin);
+export async function get(endpoint, params = {}) {
+  const url = new URL(`${BASE_URL}${endpoint}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
 
-  const response = await fetch(url, { credentials: 'same-origin' });
-  const data = await response.json();
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: { 'Accept': 'application/json' },
+  });
 
   if (!response.ok) {
-    throw new Error(data.error?.message || 'API request failed');
+    const err = await response.json();
+    throw new Error(err.message || 'API request failed');
   }
-  return data;
+  return response.json();
 }
 
 /**
- * Generic POST request.
- * @param {string} path
- * @param {Object} body
- * @returns {Promise<any>}
+ * Fetch a list of destinations.
+ *
+ * @param {Object} [options] - Pagination & filter options
+ * @param {number} [options.page=1]
+ * @param {number} [options.limit=12]
+ * @param {string} [options.country] - Optional country filter
+ * @returns {Promise<{data: Destination[], meta: PaginationMeta}>}
  */
-export async function post(path, body) {
-  const response = await fetch(BASE_URL + path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-    credentials: 'same-origin',
-  });
+export function getDestinations(options = {}) {
+  return get('/destinations', options);
+}
 
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error?.message || 'API request failed');
+/**
+ * Fetch details for a single destination.
+ *
+ * @param {string|number} id - Destination identifier
+ * @returns {Promise<Destination>}
+ */
+export function getDestinationById(id) {
+  return get(`/destinations/${id}`);
+}
+
+/**
+ * Search destinations by keyword.
+ *
+ * @param {string} query - Search term
+ * @param {Object} [options] - Pagination options
+ * @returns {Promise<{data: Destination[], meta: PaginationMeta}>}
+ */
+export function searchDestinations(query, options = {}) {
+  return get('/search', { q: query, ...options });
+}
+
+/**
+ * Types (for documentation / TypeScript users)
+ *
+ * @typedef {Object} Destination
+ * @property {string|number} id
+ * @property {string} name
+ * @property {string} country
+ * @property {string} description
+ * @property {string[]} images
+ * @property {number} rating
+ *
+ * @typedef {Object} PaginationMeta
+ * @property {number} page
+ * @property {number} limit
+ * @property {number} total
+ */
+```
+
+### Error handling  
+
+All API functions **reject** with a native `Error`. The UI layer (`app.js`) catches these errors and displays a toast notification:
+
+```js
+import * as API from './api.js';
+import { showToast } from './ui/modal.js';
+
+async function loadHome() {
+  try {
+    const { data } = await API.getDestinations({ limit: 8 });
+    renderCards(data);
+  } catch (err) {
+    showToast('⚠️ Unable to load destinations', { type: 'error' });
+    console.error(err);
   }
-  return data;
 }
 ```
 
-#### Example usage in a component
+---  
+
+## Examples  
+
+### 1️⃣ Rendering a Destination Card  
 
 ```js
-import { get, post } from './api.js';
+import { createElement } from './utils/dom.js';
 
-// Load destinations for the homepage carousel
-async function loadDestinations() {
-  try {
-    const { status, data } = await get('/destinations', { limit: 8 });
-    if (status === 'success') render
+/**
+ * @param {Destination} dest
+ * @returns {HTMLElement}
+ */
+export function renderDestinationCard(dest) {
+  const card = createElement('article', { class: 'card'
