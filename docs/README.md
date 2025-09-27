@@ -7,21 +7,37 @@
 
 | Section | Description |
 |---------|-------------|
+| **[Overview](#overview)** | What Touropedia is and its main features |
 | **[Installation](#installation)** | How to get the project up and running locally |
-| **[Usage](#usage)** | Development workflow, building for production and running the site |
-| **[API Documentation](#api-documentation)** | Overview of the public JavaScript API (modules, classes, utilities) |
-| **[Examples](#examples)** | Real‑world snippets that show how to extend or customise Touropedia |
-| **[Contributing](#contributing)** | Guidelines for submitting pull‑requests |
+| **[Usage](#usage)** | Running the site, development workflow, and production build |
+| **[API Documentation](#api-documentation)** | Public JavaScript API (data fetching, UI helpers, utilities) |
+| **[Examples](#examples)** | Code snippets that demonstrate common tasks |
+| **[Contributing](#contributing)** | How to contribute to the project |
 | **[License](#license)** | Open‑source license information |
+| **[Changelog](#changelog)** | Quick view of major releases |
+
+---  
+
+## Overview  
+
+Touropedia is a **responsive travel portal** that lets users explore destinations, view photo galleries, read travel guides, and plan itineraries—all without leaving the browser.  
+
+Key highlights:  
+
+- **Mobile‑first responsive layout** built with SCSS and CSS Grid/Flexbox.  
+- **Dynamic content** loaded via the built‑in JavaScript API (fetches JSON from the `/data` folder or a remote endpoint).  
+- **Search & filter** with debounced input and multi‑criteria filtering (continent, price range, activity type).  
+- **Map integration** (Leaflet.js) for interactive location previews.  
+- **Modular architecture** – each UI component lives in its own folder (`src/components/`).  
+- **Zero‑runtime dependencies** (vanilla JS) – only dev‑time tooling (Node, Sass, ESLint, Prettier).  
 
 ---  
 
 ## Installation  
 
 > **Prerequisites**  
-> - **Node.js** (>= 18.x) – includes npm/yarn.  
-> - **Git** – to clone the repository.  
-> - **A modern browser** (Chrome, Firefox, Edge, Safari) for testing.  
+> - **Node.js ≥ 18** (for the build tools)  
+> - **Git** (to clone the repo)  
 
 ### 1. Clone the repository  
 
@@ -30,200 +46,188 @@ git clone https://github.com/your‑username/Touropedia.git
 cd Touropedia
 ```
 
-### 2. Install dependencies  
-
-Touropedia uses a lightweight toolchain based on **Vite** (dev server & bundler) and **Sass** for SCSS compilation.
+### 2. Install development dependencies  
 
 ```bash
-# Using npm
 npm ci
-
-# Or using Yarn
-yarn install --frozen-lockfile
 ```
 
-> **Why `npm ci`?**  
-> It installs exactly the versions listed in `package-lock.json`, guaranteeing reproducible builds.
+> `npm ci` installs the exact versions listed in `package-lock.json`, guaranteeing reproducible builds.
 
-### 3. Compile SCSS (optional – Vite does this automatically in dev mode)  
+### 3. Compile SCSS  
 
-If you want to generate the CSS once, run:
+Touropedia ships with SCSS source files located in `src/scss/`. The build script compiles them to `dist/css/`.
 
 ```bash
-npm run build:css   # or `yarn build:css`
+npm run build:css   # one‑off compile
+# or
+npm run watch:css   # watch for changes and re‑compile automatically
 ```
 
-The compiled CSS will be placed in `dist/assets/css/`.
-
-### 4. Verify the installation  
+### 4. (Optional) Lint & format  
 
 ```bash
-npm run dev   # starts a hot‑reloading dev server at http://localhost:5173
+npm run lint        # ESLint for JS
+npm run format      # Prettier for all source files
 ```
 
-Open the URL in your browser – you should see the **Touropedia** landing page.
+### 5. Serve the site locally  
+
+```bash
+npm start           # starts a local dev server at http://localhost:3000
+```
+
+The dev server supports live‑reloading for HTML, SCSS, and JS changes.
 
 ---  
 
 ## Usage  
 
-### Development  
+### Development workflow  
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Starts Vite’s development server with hot‑module replacement (HMR). |
-| `npm run lint` | Runs ESLint + Stylelint on the source files. |
-| `npm run test` | Executes unit tests (Jest + Testing Library). |
-| `npm run format` | Runs Prettier to auto‑format code. |
+| Command | What it does |
+|---------|--------------|
+| `npm start` | Starts a **development server** (`webpack-dev-server` under the hood) with hot‑module replacement. |
+| `npm run watch:css` | Watches SCSS files and recompiles to CSS on change. |
+| `npm run build` | Produces a **production‑ready** bundle in `dist/` (minified CSS/JS, hashed filenames). |
+| `npm run test` | Runs unit tests (Jest) for the JavaScript utilities. |
+| `npm run lint` | Lints JavaScript with ESLint (Airbnb style). |
+| `npm run format` | Formats code with Prettier. |
 
-> **Tip:** Add `--open` to `npm run dev` if you want the browser to launch automatically: `npm run dev -- --open`.
+### Production deployment  
 
-### Building for Production  
+1. Build the static assets  
 
-```bash
-npm run build
+   ```bash
+   npm run build
+   ```
+
+2. Upload the contents of the `dist/` folder to any static‑hosting provider (GitHub Pages, Netlify, Vercel, AWS S3 + CloudFront, etc.).  
+
+3. Ensure the server serves `index.html` for **fallback routing** (e.g., for deep links like `/destinations/paris`).  
+
+### Configuration  
+
+All runtime configuration lives in `src/config.js`. Example:
+
+```js
+export const API_ENDPOINT = 'https://api.touropedia.com/v1';
+export const DEFAULT_THEME = 'light'; // or 'dark'
+export const MAP_PROVIDER = 'leaflet'; // currently only Leaflet is supported
 ```
 
-- **Output**: `dist/` – a fully static site ready to be deployed to any static‑host (GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc.).  
-- **Optimisations**:  
-  - SCSS → minified CSS  
-  - JavaScript → ES‑module bundle with tree‑shaking & minification  
-  - Images → WebP conversion (via `vite-imagetools`)  
+You can override these values by creating a `config.local.js` file (ignored by Git) and importing it in `src/main.js`:
 
-### Previewing the Production Build  
-
-```bash
-npm run preview
+```js
+import { API_ENDPOINT } from './config.local.js' // falls back to config.js if missing
 ```
-
-Serves the `dist/` folder locally on `http://localhost:4173` – useful for a final sanity check before deployment.
-
-### Deploying  
-
-Below are the most common static‑host deployment commands. Adjust the remote URL to your own repository.
-
-#### GitHub Pages  
-
-```bash
-# Assuming the `gh-pages` branch is used for the site
-npm run build
-npx gh-pages -d dist
-```
-
-#### Netlify  
-
-1. Connect the repo in the Netlify dashboard.  
-2. Set **Build command**: `npm run build`  
-3. Set **Publish directory**: `dist`  
-
-#### Vercel  
-
-```bash
-vercel --prod
-```
-
-Vercel automatically detects the Vite project and runs `npm run build`.
 
 ---  
 
 ## API Documentation  
 
-Touropedia’s front‑end is modularised into ES‑modules under `src/js/`. The public API is intentionally small – only the utilities that a contributor might need to extend the site.
+Touropedia’s public JavaScript API lives under the global namespace `Touropedia`. It is deliberately lightweight so that developers can embed the library in other projects or extend it with custom components.
 
-### 1. `src/js/api.js` – Core API  
+### Namespace: `Touropedia`
 
-| Export | Type | Description |
+| Member | Type | Description |
 |--------|------|-------------|
-| `fetchDestinations()` | `async () => Destination[]` | Retrieves the list of travel destinations from `data/destinations.json`. Returns an array of **Destination** objects. |
-| `searchDestinations(query: string)` | `(query) => Destination[]` | Filters the destination list by name, country or tags (case‑insensitive). |
-| `addDestination(dest: Destination)` | `(dest) => void` | Adds a new destination to the in‑memory store and persists it to `data/destinations.json` (only works in dev mode with the local JSON server). |
-| `on(event: string, handler: Function)` | `(event, handler) => void` | Simple pub/sub for UI components (`'destinations:updated'`, `'theme:changed'`, …). |
-| `off(event: string, handler: Function)` | `(event, handler) => void` | Unsubscribe a previously registered handler. |
+| `Touropedia.init(options)` | `function` | Initializes the app. Accepts an optional `options` object (see below). |
+| `Touropedia.fetchDestinations(params)` | `function` | Returns a `Promise<Array<Destination>>` with filtered destinations. |
+| `Touropedia.search(query)` | `function` | Debounced search that resolves to an array of matching destinations. |
+| `Touropedia.renderGallery(container, images)` | `function` | Renders a responsive image carousel inside `container`. |
+| `Touropedia.map.showLocation(lat, lng, options)` | `function` | Centers the Leaflet map on a coordinate and optionally adds a marker. |
+| `Touropedia.utils` | `object` | Miscellaneous helper functions (date formatting, price conversion, etc.). |
 
-#### Destination type (JSDoc)
+---
+
+### `Touropedia.init(options)`
+
+Initializes the UI, attaches event listeners, and loads the first batch of data.
+
+**Parameters**
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `options.container` | `string` | `'#app'` | CSS selector for the root element. |
+| `options.apiEndpoint` | `string` | `config.API_ENDPOINT` | Base URL for the JSON API. |
+| `options.theme` | `'light' \| 'dark'` | `config.DEFAULT_THEME` | Theme to apply on start. |
+| `options.mapOptions` | `object` | `{ zoom: 5, center: [0,0] }` | Leaflet map defaults. |
+
+**Example**
 
 ```js
-/**
- * @typedef {Object} Destination
- * @property {string} id          - UUID v4
- * @property {string} name        - Human‑readable name (e.g. "Kyoto")
- * @property {string} country     - Country name
- * @property {string[]} tags      - Keywords (e.g. ["culture","food"])
- * @property {string} image       - Relative path to the hero image
- * @property {string} description - Markdown‑formatted description
- * @property {number} rating      - 0‑5 (half‑star increments)
- */
+Touropedia.init({
+  container: '#touropedia-root',
+  apiEndpoint: 'https://api.touropedia.com/v2',
+  theme: 'dark',
+});
 ```
 
-### 2. `src/js/theme.js` – Theme Manager  
+---
 
-| Export | Type | Description |
-|--------|------|-------------|
-| `initTheme()` | `() => void` | Detects system preference (`prefers-color-scheme`) and applies the appropriate CSS variables. |
-| `setTheme(theme: 'light' | 'dark')` | `(theme) => void` | Forces a theme and stores the choice in `localStorage`. |
-| `toggleTheme()` | `() => void` | Switches between light and dark mode. |
-| `getCurrentTheme()` | `() => 'light' | 'dark'` | Returns the active theme. |
+### `Touropedia.fetchDestinations(params)`
 
-**CSS Variables** (defined in `src/scss/_variables.scss`):  
+Fetches destination data from the API (or from the local `data/` folder when running locally).
 
-```scss
-:root {
-  --color-bg: #ffffff;
-  --color-text: #222222;
-  --color-primary: #0066ff;
-  // …
-}
-[data-theme='dark'] {
-  --color-bg: #111111;
-  --color-text: #eeeeee;
-  --color-primary: #3399ff;
-}
-```
+**Parameters**
 
-### 3. `src/js/modal.js` – Generic Modal Utility  
+| Name | Type | Description |
+|------|------|-------------|
+| `params` | `object` | Filtering options. |
+| `params.continent` | `string` (optional) | e.g., `'Europe'`. |
+| `params.priceRange` | `{ min: number, max: number }` (optional) | Filter by price. |
+| `params.activities` | `Array<string>` (optional) | e.g., `['hiking', 'beach']`. |
+| `params.limit` | `number` (optional) | Max number of results (default `20`). |
+| `params.offset` | `number` (optional) | Pagination offset (default `0`). |
 
-| Export | Type | Description |
-|--------|------|-------------|
-| `openModal(content: HTMLElement | string, options?)` | `(content, options) => void` | Inserts `content` into the modal container and displays it. |
-| `closeModal()` | `() => void` | Hides the modal and clears its inner HTML. |
-| `onClose(callback: Function)` | `(cb) => void` | Register a callback that runs after the modal is closed. |
+**Returns**: `Promise<Array<Destination>>`
 
-**Options**  
+**Destination type**
 
 ```ts
-interface ModalOptions {
-  /** If true, clicking outside the modal closes it */
-  closeOnOverlay?: boolean;
-  /** CSS class added to the modal wrapper for custom styling */
-  className?: string;
+interface Destination {
+  id: string;
+  name: string;
+  slug: string; // URL‑friendly name
+  continent: string;
+  country: string;
+  description: string;
+  price: number; // USD
+  activities: string[];
+  images: string[]; // URLs
+  coordinates: { lat: number; lng: number };
 }
 ```
 
-### 4. `src/js/router.js` – Simple SPA Router  
-
-| Export | Type | Description |
-|--------|------|-------------|
-| `initRouter(routes: Route[])` | `(routes) => void` | Registers routes and starts listening to `popstate`. |
-| `navigate(path: string)` | `(path) => void` | Programmatically change the URL and render the associated view. |
-
-**Route definition**
-
-```ts
-interface Route {
-  /** URL pattern, e.g. '/destinations/:id' */
-  path: string;
-  /** Function that returns a Promise resolving to an HTMLElement */
-  component: () => Promise<HTMLElement>;
-}
-```
-
----  
-
-## Examples  
-
-Below are practical snippets that demonstrate how to extend Touropedia without digging into the core codebase.
-
-### 1. Adding a New Destination (dev mode)  
+**Example**
 
 ```js
-import { addDestination, fetchDestinations } from './api.js
+Touropedia.fetchDestinations({
+  continent: 'Asia',
+  priceRange: { min: 500, max: 2000 },
+  activities: ['culture', 'food'],
+}).then(destinations => {
+  console.log('Found', destinations.length, 'destinations');
+});
+```
+
+---
+
+### `Touropedia.search(query)`
+
+Performs a **debounced** full‑text search across destination names and descriptions.
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `query` | `string` | Search term (minimum 2 characters). |
+
+**Returns**: `Promise<Array<Destination>>`
+
+**Example**
+
+```js
+const searchBox = document.querySelector('#search-input');
+searchBox.addEventListener('input
