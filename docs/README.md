@@ -1,220 +1,264 @@
 # Touropedia  
-**A responsive travel website built with HTML, SCSS, CSS and JavaScript**  
+**A responsive travel website built with HTML, SCSS, CSS, and JavaScript**  
 
 ---  
 
 ## Table of Contents  
 
-| Section | Description |
-|---------|-------------|
-| **Overview** | What Touropedia is and its core features |
-| **Prerequisites** | Tools you need before you start |
-| **Installation** | How to get the project on your machine |
-| **Development & Usage** | Running a local dev server, hot‑reloading, linting, testing |
-| **Build & Deployment** | Production build, static‑site hosting options |
-| **API Documentation** | Public JavaScript modules, utility functions, and custom events |
-| **Examples** | Sample code snippets that illustrate common use‑cases |
-| **Contributing** | How to help improve the project |
-| **License** | Open‑source licensing information |
+1. [Overview](#overview)  
+2. [Installation](#installation)  
+3. [Usage](#usage)  
+4. [API Documentation](#api-documentation)  
+5. [Examples](#examples)  
+6. [Development Scripts](#development-scripts)  
+7. [Contributing](#contributing)  
+8. [License](#license)  
 
 ---  
 
 ## Overview  
 
-Touropedia is a **responsive, SEO‑friendly travel portal** that showcases destinations, itineraries, and travel tips. It is built with:
+Touropedia is a modern, mobile‑first travel portal that showcases destinations, itineraries, and travel tips. The project is **purely front‑end** – all pages are static HTML rendered with SCSS‑generated CSS and interactive behavior powered by vanilla JavaScript (ES6+).  
 
-* **HTML5** – semantic markup for accessibility and SEO.  
-* **SCSS** – modular, maintainable styling with variables, mixins, and BEM naming.  
-* **CSS** – compiled from SCSS, with a mobile‑first approach and CSS custom properties for theming.  
-* **Vanilla JavaScript (ES6+)** – no framework overhead, but organized as ES modules for easy scaling.  
+Key features  
 
-The site works on all modern browsers and adapts gracefully from mobile phones to large‑screen desktops.
-
----  
-
-## Prerequisites  
-
-| Tool | Minimum version | Why it’s needed |
-|------|----------------|-----------------|
-| **Git** | 2.20+ | Clone the repository |
-| **Node.js** | 18.x LTS | Run the build scripts, dev server, and SCSS compiler |
-| **npm** (or **pnpm** / **yarn**) | 9.x+ | Package manager for dependencies |
-| **A modern browser** | Chrome/Firefox/Edge/Safari (latest) | Test the UI locally |
-
-> **Tip:** If you use `pnpm` or `yarn`, replace `npm` commands with the equivalent (`pnpm install`, `pnpm run dev`, …).
+| Feature | Description |
+|---------|-------------|
+| **Responsive layout** | Fluid grid, breakpoints for mobile, tablet, desktop. |
+| **SCSS architecture** | BEM‑styled components, variables, mixins, and a modular folder structure. |
+| **Dynamic UI** | Lazy‑loaded images, smooth scroll, modal dialogs, and a client‑side search. |
+| **Data‑driven** | JSON files (`data/`) feed the UI – easy to replace with a real API later. |
+| **Zero‑runtime dependencies** | No frameworks, no build‑time bundlers required for production. |
 
 ---  
 
 ## Installation  
 
+> **Prerequisites**  
+> - Node.js (>= 18) – only needed for development tooling (SCSS compilation, linting, etc.).  
+> - Git – to clone the repository.  
+
+### 1. Clone the repo  
+
 ```bash
-# 1️⃣ Clone the repo
-git clone https://github.com/your‑username/Touropedia.git
+git clone https://github.com/your-username/Touropedia.git
 cd Touropedia
-
-# 2️⃣ Install dependencies
-npm ci          # or `npm install` if you prefer a fresh lockfile
-
-# 3️⃣ (Optional) Install the optional pre‑commit hook
-npx husky install
 ```
 
-> **What gets installed?**  
-> * `sass` – compiles SCSS → CSS.  
-> * `esbuild` – fast bundler for JavaScript modules.  
-> * `eslint` + `stylelint` – code quality enforcement.  
-> * `live-server` – tiny dev server with live‑reload.  
-
----  
-
-## Development & Usage  
-
-### 1️⃣ Start the development server  
+### 2. Install development dependencies  
 
 ```bash
-npm run dev
+npm ci
 ```
 
-* Serves `src/` on `http://localhost:3000`.  
-* SCSS is compiled on‑the‑fly, and JavaScript modules are bundled with **esbuild** in watch mode.  
-* Changes to `.html`, `.scss`, or `.js` files trigger an automatic browser refresh.
+> `npm ci` installs the exact versions listed in `package-lock.json`.  
 
-### 2️⃣ Lint & format  
-
-```bash
-npm run lint          # runs ESLint + Stylelint
-npm run format        # runs Prettier on the whole codebase
-```
-
-### 3️⃣ Run unit tests (if you add any)  
-
-```bash
-npm test
-```
-
-> **Note:** The starter repo ships with a minimal Jest configuration for testing pure‑JS utilities. Feel free to extend it for DOM‑related tests with `@testing-library/dom`.
-
----  
-
-## Build & Deployment  
-
-### Production build  
+### 3. Build the assets (optional – for production)  
 
 ```bash
 npm run build
 ```
 
-* **Output**: `dist/` – contains minified CSS, bundled JS, and static HTML ready for any static‑host (GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc.).  
-* The build process also generates a **critical‑CSS** chunk for the above‑the‑fold content and adds a hash to filenames for cache‑busting.
+- Compiles SCSS → `dist/css/style.min.css` (autoprefixed, minified).  
+- Copies static assets (`images/`, `fonts/`, `data/`) to `dist/`.  
 
-### Deploy to GitHub Pages (example)  
+### 4. Serve the site locally  
 
 ```bash
-npm run deploy
+npm start
 ```
 
-> The `deploy` script pushes the `dist/` folder to the `gh-pages` branch.  
-> Adjust the `homepage` field in `package.json` if your repo lives under a sub‑path.
+- Starts a lightweight development server (`http://localhost:3000`) with live‑reload.  
 
-### Deploy to Netlify (example)  
+> **Note:** For a pure static deployment (GitHub Pages, Netlify, Vercel, etc.) you can simply push the contents of the `dist/` folder. No server‑side runtime is required.  
 
-1. Connect your GitHub repo to Netlify.  
-2. Set **Build command**: `npm run build`  
-3. Set **Publish directory**: `dist`  
+---  
 
-Netlify will automatically run the build on each push.
+## Usage  
+
+### Running the site locally  
+
+```bash
+npm start
+```
+
+- The server watches for changes in `src/` (SCSS, JS, HTML) and automatically rebuilds.  
+
+### Production deployment  
+
+1. Build the assets: `npm run build`.  
+2. Upload the `dist/` folder to any static‑hosting provider (e.g., GitHub Pages, Netlify, Vercel, AWS S3 + CloudFront).  
+
+### Customising the theme  
+
+All visual variables live in `src/scss/_variables.scss`.  
+Example – change the primary colour:
+
+```scss
+// src/scss/_variables.scss
+$color-primary: #0066ff; // <-- modify this value
+```
+
+After editing, run `npm run build` (or let the dev server rebuild automatically).  
+
+### Adding new destinations  
+
+1. Create a new JSON file in `src/data/` (or edit `destinations.json`).  
+   ```json
+   {
+     "id": "paris",
+     "name": "Paris, France",
+     "country": "France",
+     "heroImage": "images/paris-hero.jpg",
+     "summary": "The City of Light…",
+     "highlights": [
+       "Eiffel Tower",
+       "Louvre Museum",
+       "Seine River Cruise"
+     ],
+     "tags": ["city", "culture", "romance"]
+   }
+   ```
+2. The JavaScript module `src/js/modules/destination.js` automatically reads the file and renders the card on the homepage.  
 
 ---  
 
 ## API Documentation  
 
-Touropedia ships with a small, well‑documented JavaScript API that powers interactive UI components (carousel, modal, lazy‑load, etc.). All modules live under `src/js/` and are exported as ES modules.
+Touropedia does **not** expose a back‑end API out of the box, but the front‑end code is written to consume a simple JSON‑based REST‑like interface. This makes it trivial to swap the static JSON files for a real API later.
 
-### 1️⃣ `src/js/utils.js`  
+### Expected Endpoints  
 
-| Export | Type | Description |
-|--------|------|-------------|
-| `debounce(fn, wait, immediate = false)` | `function` | Returns a debounced version of `fn`. Useful for resize/scroll listeners. |
-| `throttle(fn, limit)` | `function` | Returns a throttled version of `fn`. |
-| `formatDate(date, locale = 'en-US')` | `function` | Returns a human‑readable date string. |
-| `fetchJSON(url, options = {})` | `async function` | Wrapper around `fetch` that automatically parses JSON and throws on non‑2xx responses. |
-| `createEvent(name, detail = {})` | `function` | Helper to create a `CustomEvent` with optional `detail`. |
+| Method | URL | Description | Sample Response |
+|--------|-----|-------------|-----------------|
+| `GET` | `/api/destinations` | Returns an array of all destinations. | `[{ "id": "paris", "name": "Paris", … }, …]` |
+| `GET` | `/api/destinations/:id` | Returns a single destination object. | `{ "id": "paris", "name": "Paris", … }` |
+| `GET` | `/api/search?q=term` | Full‑text search across destination names, tags, and summaries. | `{ "results": [{ "id": "paris", … }] }` |
 
-#### Example  
+### Front‑end API Wrapper (`src/js/api.js`)  
 
 ```js
-import { debounce, fetchJSON, createEvent } from './utils.js';
+/**
+ * Simple wrapper around fetch() for Touropedia data.
+ * Replace the base URL with your real back‑end when ready.
+ */
+export const API = (() => {
+  const BASE_URL = import.meta.env.MODE === 'production'
+    ? '/api'               // production (static JSON folder)
+    : '/api';              // dev server (proxy to src/data)
 
-const onResize = debounce(() => {
-  console.log('Window resized – recalculating layout');
-}, 250);
+  const handleResponse = async (res) => {
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'API error');
+    }
+    return res.json();
+  };
 
-window.addEventListener('resize', onResize);
+  return {
+    /** @returns {Promise<Array>} */
+    getDestinations: () => fetch(`${BASE_URL}/destinations`).then(handleResponse),
 
-// Fetch destination data
-fetchJSON('/data/destinations.json')
-  .then(data => console.log('Loaded', data))
-  .catch(err => console.error(err));
+    /** @param {string} id */
+    getDestination: (id) => fetch(`${BASE_URL}/destinations/${id}`).then(handleResponse),
 
-// Dispatch a custom event when a destination card is clicked
-document.querySelectorAll('.dest-card').forEach(card => {
-  card.addEventListener('click', () => {
-    const ev = createEvent('dest:select', { id: card.dataset.id });
-    document.dispatchEvent(ev);
-  });
+    /** @param {string} query */
+    search: (query) => fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`).then(handleResponse),
+  };
+})();
+```
+
+**How to replace the data source**  
+
+1. Deploy a back‑end that respects the three endpoints above.  
+2. Update `BASE_URL` in `src/js/api.js` to point at the new server (e.g., `https://api.touropedia.com`).  
+3. No other code changes are required – the UI automatically consumes the new data.  
+
+---  
+
+## Examples  
+
+Below are a few practical snippets that demonstrate how to use Touropedia’s components and API wrapper.
+
+### 1. Rendering the Destination Grid  
+
+```js
+import { API } from './api.js';
+import { renderDestinationCard } from './modules/destination.js';
+
+async function initHomePage() {
+  try {
+    const destinations = await API.getDestinations();
+    const container = document.querySelector('#destinations-grid');
+
+    destinations.forEach(dest => {
+      const card = renderDestinationCard(dest);
+      container.appendChild(card);
+    });
+  } catch (err) {
+    console.error('Failed to load destinations:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initHomePage);
+```
+
+### 2. Search Component  
+
+```html
+<!-- index.html -->
+<header class="search-bar">
+  <input type="search" id="search-input" placeholder="Search destinations…" />
+  <button id="search-btn">🔍</button>
+</header>
+<section id="search-results" class="grid"></section>
+```
+
+```js
+// src/js/modules/search.js
+import { API } from '../api.js';
+import { renderDestinationCard } from './destination.js';
+
+const input = document.getElementById('search-input');
+const btn   = document.getElementById('search-btn');
+const resultsContainer = document.getElementById('search-results');
+
+async function performSearch() {
+  const query = input.value.trim();
+  if (!query) return;
+
+  try {
+    const { results } = await API.search(query);
+    resultsContainer.innerHTML = ''; // clear previous
+
+    results.forEach(dest => {
+      resultsContainer.appendChild(renderDestinationCard(dest));
+    });
+  } catch (e) {
+    console.error('Search error:', e);
+  }
+}
+
+btn.addEventListener('click', performSearch);
+input.addEventListener('keypress', e => {
+  if (e.key === 'Enter') performSearch();
 });
 ```
 
----
+### 3. Modal Dialog for Destination Details  
 
-### 2️⃣ `src/js/carousel.js`  
-
-**Class** `Carousel` – a lightweight, dependency‑free carousel/slider.
-
-| Constructor | Parameters |
-|-------------|------------|
-| `new Carousel(container, options = {})` | `container` – DOM element that holds the slides. <br> `options` – configuration object (see below). |
-
-#### Options  
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `loop` | `true` | Whether the carousel should wrap around. |
-| `autoplay` | `false` | Auto‑advance slides. |
-| `interval` | `5000` | Milliseconds between auto‑advances. |
-| `transition` | `'slide'` | `'slide'` or `'fade'`. |
-| `perView` | `1` | Number of slides visible at once (responsive breakpoints can be set via CSS). |
-
-#### Public Methods  
-
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `next()` | `void` | Move to the next slide. |
-| `prev()` | `void` | Move to the previous slide. |
-| `goTo(index)` | `void` | Jump to a specific slide (0‑based). |
-| `destroy()` | `void` | Remove event listeners and clean up. |
-
-#### Events  
-
-| Event name | `detail` | When emitted |
-|------------|----------|--------------|
-| `carousel:change` | `{ currentIndex, previousIndex }` | After a slide transition finishes. |
-| `carousel:autoplay:start` | `{}` | When autoplay starts. |
-| `carousel:autoplay:stop` | `{}` | When autoplay stops. |
-
-#### Example  
+```html
+<!-- Somewhere in index.html -->
+<div id="modal" class="modal hidden" aria-hidden="true">
+  <div class="modal__content" role="dialog" aria-modal="true">
+    <button class="modal__close" aria-label="Close">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+```
 
 ```js
-import Carousel from './carousel.js';
-
-const carouselEl = document.querySelector('.hero-carousel');
-const carousel = new Carousel(carouselEl, {
-  loop: true,
-  autoplay: true,
-  interval: 4000,
-  transition: 'fade'
-});
-
-// Listen for slide changes
-carouselEl.addEventListener('carousel:change', e => {
-  console.log('Now showing slide',
+// src/js/modules/modal.js
+export function openModal(html) {
+  const modal = document.getElementById('modal');
+  const body  = document.getElementById('modal-body
