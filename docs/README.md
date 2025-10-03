@@ -1,264 +1,239 @@
 # Touropedia  
-**A responsive travel website built with HTML, SCSS, CSS, and JavaScript**  
+**A responsive travel website built with HTML, SCSS, CSS and JavaScript**  
 
 ---  
 
 ## Table of Contents  
 
-1. [Overview](#overview)  
-2. [Installation](#installation)  
-3. [Usage](#usage)  
-4. [API Documentation](#api-documentation)  
-5. [Examples](#examples)  
-6. [Development Scripts](#development-scripts)  
-7. [Contributing](#contributing)  
-8. [License](#license)  
+| # | Section | Link |
+|---|---------|------|
+| 1 | [About the Project](#about-the-project) | |
+| 2 | [Demo](#demo) | |
+| 3 | [Installation](#installation) | |
+| 4 | [Development Workflow](#development-workflow) | |
+| 5 | [Usage](#usage) | |
+| 6 | [API Documentation](#api-documentation) | |
+| 7 | [Examples](#examples) | |
+| 8 | [Project Structure](#project-structure) | |
+| 9 | [Contributing](#contributing) | |
+|10 | [License](#license) | |
 
 ---  
 
-## Overview  
+## About the Project  
 
-Touropedia is a modern, mobile‑first travel portal that showcases destinations, itineraries, and travel tips. The project is **purely front‑end** – all pages are static HTML rendered with SCSS‑generated CSS and interactive behavior powered by vanilla JavaScript (ES6+).  
+Touropedia is a **responsive, single‑page travel guide** that showcases destinations, itineraries, and travel tips. It is built with:
 
-Key features  
+* **HTML5** – semantic markup for accessibility and SEO.  
+* **SCSS** – modular, maintainable styling with variables, mixins, and nesting.  
+* **CSS** – compiled from SCSS, with a mobile‑first responsive grid.  
+* **Vanilla JavaScript (ES6+)** – fetches data from a public travel API, handles UI interactions, and provides a small client‑side routing system.
 
-| Feature | Description |
-|---------|-------------|
-| **Responsive layout** | Fluid grid, breakpoints for mobile, tablet, desktop. |
-| **SCSS architecture** | BEM‑styled components, variables, mixins, and a modular folder structure. |
-| **Dynamic UI** | Lazy‑loaded images, smooth scroll, modal dialogs, and a client‑side search. |
-| **Data‑driven** | JSON files (`data/`) feed the UI – easy to replace with a real API later. |
-| **Zero‑runtime dependencies** | No frameworks, no build‑time bundlers required for production. |
+The site works offline after the first load (service‑worker powered) and is fully responsive from mobile phones to 4K displays.
+
+---  
+
+## Demo  
+
+| Platform | Link |
+|----------|------|
+| Live Demo (GitHub Pages) | https://yourusername.github.io/touropedia/ |
+| Netlify Preview | https://touropedia.netlify.app/ |
 
 ---  
 
 ## Installation  
 
 > **Prerequisites**  
-> - Node.js (>= 18) – only needed for development tooling (SCSS compilation, linting, etc.).  
-> - Git – to clone the repository.  
-
-### 1. Clone the repo  
+> * Node.js **≥ 18.x** (includes npm)  
+> * Git (optional, for cloning)  
 
 ```bash
-git clone https://github.com/your-username/Touropedia.git
-cd Touropedia
+# 1️⃣ Clone the repository
+git clone https://github.com/yourusername/touropedia.git
+cd touropedia
+
+# 2️⃣ Install development dependencies
+npm ci   # or `npm install` if you prefer
+
+# 3️⃣ Build the assets (SCSS → CSS, bundle JS)
+npm run build   # creates a `dist/` folder
+
+# 4️⃣ (Optional) Serve the built site locally
+npm run preview   # opens http://localhost:5000
 ```
 
-### 2. Install development dependencies  
+### npm Scripts  
 
-```bash
-npm ci
-```
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Starts a hot‑reloading dev server (`vite`) on `http://localhost:5173`. |
+| `npm run build` | Compiles SCSS, bundles JS, and outputs a production‑ready `dist/` folder. |
+| `npm run lint` | Runs ESLint + Stylelint on the source files. |
+| `npm run preview` | Serves the `dist/` folder with a tiny static server (useful for final testing). |
+| `npm run clean` | Removes `node_modules` and `dist/` for a fresh start. |
 
-> `npm ci` installs the exact versions listed in `package-lock.json`.  
+---  
 
-### 3. Build the assets (optional – for production)  
+## Development Workflow  
 
-```bash
-npm run build
-```
+1. **Start the dev server**  
 
-- Compiles SCSS → `dist/css/style.min.css` (autoprefixed, minified).  
-- Copies static assets (`images/`, `fonts/`, `data/`) to `dist/`.  
+   ```bash
+   npm run dev
+   ```
 
-### 4. Serve the site locally  
+   *Changes to `.scss`, `.js`, or `.html` files trigger live reload.*  
 
-```bash
-npm start
-```
+2. **Write SCSS**  
 
-- Starts a lightweight development server (`http://localhost:3000`) with live‑reload.  
+   * All SCSS lives under `src/scss/`.  
+   * Use the `variables.scss`, `mixins.scss`, and `breakpoints.scss` files to keep the design consistent.  
 
-> **Note:** For a pure static deployment (GitHub Pages, Netlify, Vercel, etc.) you can simply push the contents of the `dist/` folder. No server‑side runtime is required.  
+3. **Add JavaScript modules**  
+
+   * Place modules in `src/js/`.  
+   * Export functions as ES modules (`export function foo() {}`) and import them where needed.  
+
+4. **Testing**  
+
+   * Run `npm run lint` before committing.  
+   * Use the built version (`npm run build && npm run preview`) to verify that the production bundle works.  
+
+5. **Deploy**  
+
+   * Push to the `main` branch → GitHub Actions automatically builds and deploys to GitHub Pages.  
+   * Or run `npm run build` and push the `dist/` folder to any static host (Netlify, Vercel, Cloudflare Pages, etc.).  
 
 ---  
 
 ## Usage  
 
-### Running the site locally  
+### Running the site locally (development)
 
 ```bash
-npm start
+npm run dev
+# → Open http://localhost:5173 in your browser
 ```
 
-- The server watches for changes in `src/` (SCSS, JS, HTML) and automatically rebuilds.  
+### Running the production build locally  
 
-### Production deployment  
-
-1. Build the assets: `npm run build`.  
-2. Upload the `dist/` folder to any static‑hosting provider (e.g., GitHub Pages, Netlify, Vercel, AWS S3 + CloudFront).  
+```bash
+npm run build
+npm run preview
+# → Open http://localhost:5000
+```
 
 ### Customising the theme  
 
-All visual variables live in `src/scss/_variables.scss`.  
-Example – change the primary colour:
+All colour, spacing, and typography values are defined in `src/scss/_variables.scss`.  
+Edit the variables and re‑run `npm run dev` (or `npm run build` for production) to see the changes instantly.
 
 ```scss
-// src/scss/_variables.scss
-$color-primary: #0066ff; // <-- modify this value
+// Example: change primary colour
+$color-primary: #0066ff;   // default blue
 ```
 
-After editing, run `npm run build` (or let the dev server rebuild automatically).  
+### Adding a new destination  
 
-### Adding new destinations  
-
-1. Create a new JSON file in `src/data/` (or edit `destinations.json`).  
-   ```json
-   {
-     "id": "paris",
-     "name": "Paris, France",
-     "country": "France",
-     "heroImage": "images/paris-hero.jpg",
-     "summary": "The City of Light…",
-     "highlights": [
-       "Eiffel Tower",
-       "Louvre Museum",
-       "Seine River Cruise"
-     ],
-     "tags": ["city", "culture", "romance"]
-   }
-   ```
-2. The JavaScript module `src/js/modules/destination.js` automatically reads the file and renders the card on the homepage.  
+1. Create a JSON file in `src/data/destinations/` (e.g., `paris.json`).  
+2. Follow the schema described in the **API Documentation** section.  
+3. The site automatically picks up new files on the next build because `src/data/` is imported by `src/js/data-loader.js`.  
 
 ---  
 
 ## API Documentation  
 
-Touropedia does **not** expose a back‑end API out of the box, but the front‑end code is written to consume a simple JSON‑based REST‑like interface. This makes it trivial to swap the static JSON files for a real API later.
+Touropedia is a **static front‑end** that consumes a small, self‑hosted JSON API located in `src/data/`. The API is exposed through the `DataLoader` module (`src/js/data-loader.js`). Below is the public interface that other modules (or external scripts) can use.
 
-### Expected Endpoints  
-
-| Method | URL | Description | Sample Response |
-|--------|-----|-------------|-----------------|
-| `GET` | `/api/destinations` | Returns an array of all destinations. | `[{ "id": "paris", "name": "Paris", … }, …]` |
-| `GET` | `/api/destinations/:id` | Returns a single destination object. | `{ "id": "paris", "name": "Paris", … }` |
-| `GET` | `/api/search?q=term` | Full‑text search across destination names, tags, and summaries. | `{ "results": [{ "id": "paris", … }] }` |
-
-### Front‑end API Wrapper (`src/js/api.js`)  
+### `DataLoader` (ES module)
 
 ```js
 /**
- * Simple wrapper around fetch() for Touropedia data.
- * Replace the base URL with your real back‑end when ready.
+ * DataLoader – a tiny wrapper around fetch() that loads static JSON files.
+ *
+ * @class
  */
-export const API = (() => {
-  const BASE_URL = import.meta.env.MODE === 'production'
-    ? '/api'               // production (static JSON folder)
-    : '/api';              // dev server (proxy to src/data)
+export default class DataLoader {
+  /**
+   * Load a list of destinations.
+   *
+   * @returns {Promise<Array<Destination>>}
+   *   Resolves with an array of destination objects.
+   *
+   * Destination schema:
+   * {
+   *   id: string,               // unique slug, e.g. "paris"
+   *   name: string,             // display name
+   *   country: string,
+   *   description: string,      // HTML string (sanitized)
+   *   images: string[],         // array of image URLs (relative to /assets/)
+   *   tags: string[],           // e.g. ["culture", "food"]
+   *   rating: number,           // 0‑5 (float)
+   *   coordinates: { lat: number, lng: number }
+   * }
+   */
+  static async getDestinations();
 
-  const handleResponse = async (res) => {
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || 'API error');
-    }
-    return res.json();
-  };
+  /**
+   * Load a single destination by its slug.
+   *
+   * @param {string} slug - The destination id (e.g. "paris").
+   * @returns {Promise<Destination>}
+   */
+  static async getDestination(slug);
 
-  return {
-    /** @returns {Promise<Array>} */
-    getDestinations: () => fetch(`${BASE_URL}/destinations`).then(handleResponse),
+  /**
+   * Load a list of blog posts.
+   *
+   * @returns {Promise<Array<Post>>}
+   *
+   * Post schema:
+   * {
+   *   id: string,
+   *   title: string,
+   *   author: string,
+   *   date: string,          // ISO 8601
+   *   excerpt: string,
+   *   content: string,       // HTML
+   *   tags: string[]
+   * }
+   */
+  static async getPosts();
 
-    /** @param {string} id */
-    getDestination: (id) => fetch(`${BASE_URL}/destinations/${id}`).then(handleResponse),
-
-    /** @param {string} query */
-    search: (query) => fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`).then(handleResponse),
-  };
-})();
-```
-
-**How to replace the data source**  
-
-1. Deploy a back‑end that respects the three endpoints above.  
-2. Update `BASE_URL` in `src/js/api.js` to point at the new server (e.g., `https://api.touropedia.com`).  
-3. No other code changes are required – the UI automatically consumes the new data.  
-
----  
-
-## Examples  
-
-Below are a few practical snippets that demonstrate how to use Touropedia’s components and API wrapper.
-
-### 1. Rendering the Destination Grid  
-
-```js
-import { API } from './api.js';
-import { renderDestinationCard } from './modules/destination.js';
-
-async function initHomePage() {
-  try {
-    const destinations = await API.getDestinations();
-    const container = document.querySelector('#destinations-grid');
-
-    destinations.forEach(dest => {
-      const card = renderDestinationCard(dest);
-      container.appendChild(card);
-    });
-  } catch (err) {
-    console.error('Failed to load destinations:', err);
-  }
+  /**
+   * Search destinations by keyword (case‑insensitive) and/or tags.
+   *
+   * @param {Object} options
+   * @param {string} [options.q]   – free‑text query.
+   * @param {string[]} [options.tags] – array of tag strings.
+   * @returns {Promise<Array<Destination>>}
+   */
+  static async search(options);
 }
-
-document.addEventListener('DOMContentLoaded', initHomePage);
 ```
 
-### 2. Search Component  
-
-```html
-<!-- index.html -->
-<header class="search-bar">
-  <input type="search" id="search-input" placeholder="Search destinations…" />
-  <button id="search-btn">🔍</button>
-</header>
-<section id="search-results" class="grid"></section>
-```
+### Example usage  
 
 ```js
-// src/js/modules/search.js
-import { API } from '../api.js';
-import { renderDestinationCard } from './destination.js';
+import DataLoader from './js/data-loader.js';
 
-const input = document.getElementById('search-input');
-const btn   = document.getElementById('search-btn');
-const resultsContainer = document.getElementById('search-results');
-
-async function performSearch() {
-  const query = input.value.trim();
-  if (!query) return;
-
-  try {
-    const { results } = await API.search(query);
-    resultsContainer.innerHTML = ''; // clear previous
-
-    results.forEach(dest => {
-      resultsContainer.appendChild(renderDestinationCard(dest));
-    });
-  } catch (e) {
-    console.error('Search error:', e);
-  }
-}
-
-btn.addEventListener('click', performSearch);
-input.addEventListener('keypress', e => {
-  if (e.key === 'Enter') performSearch();
-});
+// Load all destinations and render a card list
+DataLoader.getDestinations()
+  .then(destinations => {
+    const container = document.querySelector('#destinations');
+    container.innerHTML = destinations.map(dest => `
+      <article class="card">
+        <img src="${dest.images[0]}" alt="${dest.name}" loading="lazy">
+        <h2>${dest.name}</h2>
+        <p>${dest.description.slice(0, 120)}…</p>
+        <a href="/destinations/${dest.id}" class="btn">Read more</a>
+      </article>
+    `).join('');
+  })
+  .catch(err => console.error('Failed to load destinations', err));
 ```
 
-### 3. Modal Dialog for Destination Details  
+### Service Worker (PWA)  
 
-```html
-<!-- Somewhere in index.html -->
-<div id="modal" class="modal hidden" aria-hidden="true">
-  <div class="modal__content" role="dialog" aria-modal="true">
-    <button class="modal__close" aria-label="Close">&times;</button>
-    <div id="modal-body"></div>
-  </div>
-</div>
-```
-
-```js
-// src/js/modules/modal.js
-export function openModal(html) {
-  const modal = document.getElementById('modal');
-  const body  = document.getElementById('modal-body
+The file `src/sw.js` registers a **Cache‑First** strategy for all static assets and a **Network‑First** fallback for the JSON data. The public API for the
